@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>aeraCraft Admin | Cloud Control</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background: #050507; padding-top: 40px; }
+        .admin-panel { max-width: 900px; margin: 0 auto; background: rgba(20, 20, 25, 0.95); padding: 40px; border-radius: 20px; border: 1px solid rgba(168, 85, 247, 0.2); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 20px; }
+        .admin-section { margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.02); border-radius: 12px; }
+        label { display: block; margin-bottom: 10px; font-weight: 600; color: #a855f7; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+        input, select, textarea { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; margin-bottom: 15px; }
+        .phase-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .phase-btn { padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; text-align: center; transition: 0.3s; }
+        .phase-btn.active { background: rgba(168, 85, 247, 0.2); border-color: #a855f7; color: #fff; font-weight: 800; }
+        .btn-save { background: #a855f7; color: #fff; border: none; padding: 15px 30px; border-radius: 8px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.3s; }
+        .btn-save:hover { background: #9333ea; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(168, 85, 247, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="admin-panel">
+        <div class="admin-header">
+            <h1 style="font-size: 1.5rem;">aera<span>Craft</span> Cloud Admin</h1>
+            <a href="index.html" style="color: #666; text-decoration: none; font-size: 0.9rem;">← Zur Website</a>
+        </div>
+
+        <div class="admin-section">
+            <label>Aktuelle Season Phase</label>
+            <div class="phase-selector" id="phase-selector">
+                <div class="phase-btn" data-phase="1">Woche 1<br><small>Allianz</small></div>
+                <div class="phase-btn" data-phase="2">Woche 2<br><small>Expansion</small></div>
+                <div class="phase-btn" data-phase="3">Woche 3-4<br><small>Vernichtung</small></div>
+            </div>
+            <input type="hidden" id="current-phase" value="1">
+        </div>
+
+        <div class="admin-section">
+            <label>Season Thema / Hook</label>
+            <input type="text" id="season-theme" placeholder="z.B. Endless Desert, Frozen Wasteland...">
+            
+            <label>Countdown Ziel (Datum)</label>
+            <input type="datetime-local" id="countdown-date">
+        </div>
+
+        <div class="admin-section">
+            <label>Hall of Fame (Siegerteam)</label>
+            <input type="text" id="hall-of-fame" placeholder="Name des Gewinner-Teams">
+        </div>
+
+        <button class="btn-save" onclick="saveConfig()">Season-Daten in Cloud speichern</button>
+    </div>
+
+    <script type="module">
+        // Supabase-Zugangsdaten werden aus dem Haupt-Projekt übernommen
+        // (Ich nutze den globalen Supabase Client, den wir bereits konfiguriert haben)
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+        
+        // Wir holen uns die Credentials aus dem localStorage (da sie im Hauptprojekt dort liegen)
+        const supabaseUrl = localStorage.getItem('supabase-url');
+        const supabaseKey = localStorage.getItem('supabase-key');
+        
+        if (!supabaseUrl || !supabaseKey) {
+            alert("Supabase Credentials fehlen im LocalStorage! Bitte einmal im Haupt-Admin Dashboard anmelden.");
+        }
+
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // Phase Buttons Logic
+        const phaseBtns = document.querySelectorAll('.phase-btn');
+        phaseBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                phaseBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('current-phase').value = btn.dataset.phase;
+            });
+        });
+
+        async function loadConfig() {
+            const { data, error } = await supabase.from('site_config').select('*');
+            if (data) {
+                const config = {};
+                data.forEach(item => config[item.key] = item.value);
+
+                if (config.aeracraft_current_phase) {
+                    const activeBtn = document.querySelector(`.phase-btn[data-phase="${config.aeracraft_current_phase}"]`);
+                    if (activeBtn) activeBtn.click();
+                }
+                if (config.aeracraft_season_theme) document.getElementById('season-theme').value = config.aeracraft_season_theme;
+                if (config.aeracraft_countdown) document.getElementById('countdown-date').value = config.aeracraft_countdown;
+                if (config.aeracraft_hall_of_fame) document.getElementById('hall-of-fame').value = config.aeracraft_hall_of_fame;
+            }
+        }
+
+        window.saveConfig = async function() {
+            const configs = [
+                { key: 'aeracraft_current_phase', value: document.getElementById('current-phase').value },
+                { key: 'aeracraft_season_theme', value: document.getElementById('season-theme').value },
+                { key: 'aeracraft_countdown', value: document.getElementById('countdown-date').value },
+                { key: 'aeracraft_hall_of_fame', value: document.getElementById('hall-of-fame').value }
+            ];
+
+            const { error } = await supabase.from('site_config').upsert(configs);
+            if (error) alert("Fehler beim Speichern: " + error.message);
+            else alert("aeraCraft Cloud-Daten erfolgreich aktualisiert!");
+        }
+
+        loadConfig();
+    </script>
+</body>
+</html>
