@@ -1,169 +1,254 @@
-// Use global supabase from script tag
-const { createClient } = window.supabase || {};
+// AeraCraft Main Logic - Premium Motion Edition
+// Powered by GSAP & Supabase
 
-// Credentials from main project
-const supabaseUrl = localStorage.getItem('supabase-url');
-const supabaseKey = localStorage.getItem('supabase-key');
-const supabase = (supabaseUrl && supabaseKey && createClient) ? createClient(supabaseUrl, supabaseKey) : null;
+const initAeraCraft = () => {
+    // 1. Supabase Configuration (Hardcoded for convenience)
+    const SUPABASE_URL = 'https://iutdotykpgrdhgvqtnjx.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1dGRvdHlrcGdyZGhndnF0bmp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MDM1NzAsImV4cCI6MjA5Mjk3OTU3MH0.q2zkK2ob_ohmG_o7o4q2r2_DbgLgWivTZ6Z-UVXoEJg';
+    
+    // Fallback check
+    const sb = (window.supabase) ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-// IP Copy Function
-window.copyIP = function() {
-    const ip = "play.aeracraft.net";
-    navigator.clipboard.writeText(ip).then(() => {
-        const ipTexts = [document.getElementById('ip-text'), document.getElementById('ip-text-large')];
-        ipTexts.forEach(el => {
-            if (el) {
-                const original = el.textContent;
-                el.textContent = "IP kopiert!";
-                el.style.color = "#a855f7";
-                setTimeout(() => {
-                    el.textContent = original;
-                    el.style.color = "";
-                }, 2000);
-            }
+    // 2. IP Copy Functionality
+    window.copyIP = function() {
+        const ip = "play.aeracraft.net";
+        navigator.clipboard.writeText(ip).then(() => {
+            const ipElements = [document.getElementById('ip-text'), document.getElementById('ip-text-large')];
+            ipElements.forEach(el => {
+                if (el) {
+                    const original = el.textContent;
+                    el.textContent = "KOPIERT!";
+                    el.style.color = "#a855f7";
+                    setTimeout(() => {
+                        el.textContent = original;
+                        el.style.color = "";
+                    }, 2000);
+                }
+            });
         });
-    });
-}
-
-// Alt + A Shortcut for Admin (Global)
-document.addEventListener('keydown', (e) => {
-    if (e.altKey && e.code === 'KeyA') {
-        e.preventDefault();
-        window.location.href = 'admin.html';
     }
-});
 
-// Load Cloud Config
-async function loadCloudConfig() {
-    if (!supabase) return;
-
-    const { data, error } = await supabase.from('site_config').select('*');
-    if (data) {
-        const config = {};
-        data.forEach(item => config[item.key] = item.value);
-
-        // Apply Phase
-        const phase = config.aeracraft_current_phase || "1";
-        document.querySelectorAll('.timeline-card').forEach(card => card.classList.remove('active'));
-        const activeCard = document.getElementById(`phase-card-${phase}`);
-        if (activeCard) activeCard.classList.add('active');
-
-        // Apply Theme
-        if (config.aeracraft_season_theme) {
-            document.getElementById('current-theme').textContent = config.aeracraft_season_theme;
+    // 3. Admin Shortcut (Alt + A) - Fixed for reliability
+    document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.key.toLowerCase() === 'a') {
+            e.preventDefault();
+            window.location.href = 'admin.html';
         }
-
-        // Apply Hall of Fame
-        if (config.aeracraft_hall_of_fame) {
-            document.getElementById('current-winner').textContent = config.aeracraft_hall_of_fame;
-        }
-
-        // Start Countdown
-        if (config.aeracraft_countdown) {
-            startCountdown(config.aeracraft_countdown);
-        }
-    }
-}
-
-function startCountdown(targetDate) {
-    const countDownDate = new Date(targetDate).getTime();
-    setInterval(function() {
-        const now = new Date().getTime();
-        const distance = countDownDate - now;
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        if (document.getElementById("days")) {
-            document.getElementById("days").innerHTML = days.toString().padStart(2, '0');
-            document.getElementById("hours").innerHTML = hours.toString().padStart(2, '0');
-            document.getElementById("mins").innerHTML = minutes.toString().padStart(2, '0');
-            document.getElementById("secs").innerHTML = seconds.toString().padStart(2, '0');
-        }
-    }, 1000);
-}
-
-// APPLE KEYNOTE STYLE ANIMATIONS
-function initAnimations() {
-    gsap.registerPlugin(ScrollTrigger);
-
-    // Hero Entry (Smooth scale & fade)
-    gsap.from("#hero .hero-content", {
-        scale: 1.1,
-        opacity: 0,
-        duration: 2,
-        ease: "power3.out"
     });
 
-    // Reveal Text Animation (Keynote style)
-    gsap.utils.toArray(".section-title").forEach(title => {
-        gsap.from(title, {
+    // 4. Navbar Scroll Effect
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+
+    // 5. Cloud Configuration Loader
+    async function loadConfig() {
+        if (!sb) {
+            console.warn("Supabase not initialized. Using defaults.");
+            return;
+        }
+        try {
+            const { data } = await sb.from('site_config').select('*');
+            if (data) {
+                const config = {};
+                data.forEach(item => config[item.key] = item.value);
+
+                if (config.aeracraft_current_phase) {
+                    document.querySelectorAll('.timeline-entry').forEach(c => c.classList.remove('active'));
+                    const active = document.getElementById(`phase-card-${config.aeracraft_current_phase}`);
+                    if (active) active.classList.add('active');
+                }
+                if (config.aeracraft_discord_url) {
+                    const discordLink = document.getElementById('discord-link');
+                    if (discordLink) discordLink.href = config.aeracraft_discord_url;
+                }
+                if (config.aeracraft_season_theme) {
+                    const themeEl = document.getElementById('current-theme');
+                    if(themeEl) themeEl.textContent = config.aeracraft_season_theme;
+                }
+                if (config.aeracraft_hall_of_fame) {
+                    const winnerEl = document.getElementById('current-winner');
+                    if(winnerEl) winnerEl.textContent = config.aeracraft_hall_of_fame;
+                }
+                if (config.aeracraft_countdown) startCountdown(config.aeracraft_countdown);
+            }
+        } catch (e) { console.error("Cloud Error:", e); }
+    }
+
+    // 6. Countdown Timer
+    function startCountdown(date) {
+        const target = new Date(date).getTime();
+        const update = () => {
+            const now = new Date().getTime();
+            const diff = target - now;
+            if (diff < 0) return;
+            
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+            const dEl = document.getElementById('days');
+            const hEl = document.getElementById('hours');
+            const mEl = document.getElementById('mins');
+            const sEl = document.getElementById('secs');
+
+            if(dEl) dEl.innerText = d.toString().padStart(2, '0');
+            if(hEl) hEl.innerText = h.toString().padStart(2, '0');
+            if(mEl) mEl.innerText = m.toString().padStart(2, '0');
+            if(sEl) sEl.innerText = s.toString().padStart(2, '0');
+        };
+        update();
+        setInterval(update, 1000);
+    }
+
+    // 7. Advanced GSAP Animations
+    function animate() {
+        if (!window.gsap) return;
+        gsap.registerPlugin(ScrollTrigger);
+
+        // --- Mouse Parallax for Hero ---
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth - 0.5) * 30;
+            const y = (e.clientY / window.innerHeight - 0.5) * 30;
+            
+            gsap.to('.layer-1', {
+                x: x * -1,
+                y: y * -1,
+                duration: 2,
+                ease: "power2.out"
+            });
+            
+            gsap.to('.layer-2', {
+                x: x * 0.5,
+                y: y * 0.5,
+                duration: 2,
+                ease: "power2.out"
+            });
+        });
+
+        // --- Hero Reveal Timeline (Vxlancity Style) ---
+        const tl = gsap.timeline({ defaults: { ease: "power4.out", duration: 1.2 }});
+        
+        tl.from(".badge-new", { 
+            y: 30, 
+            opacity: 0 
+        }, "+=0.2") // Small delay instead of navbar animation
+        .from(".hero-title", { 
+            y: 100, // Deep reveal
+            opacity: 0,
+            duration: 1.4
+        }, "-=1")
+        .from(".hero-desc", { 
+            y: 30, 
+            opacity: 0 
+        }, "-=1.1")
+        .from(".countdown-glass", { 
+            scale: 0.9, 
+            opacity: 0,
+            duration: 1
+        }, "-=1")
+        .from(".hero-btns", { 
+            y: 20, 
+            opacity: 0 
+        }, "-=0.9")
+        .from(".scroll-indicator", { 
+            opacity: 0 
+        }, "-=0.5");
+
+        // --- Scroll Triggers for Sections ---
+        gsap.utils.toArray(".section-header").forEach(header => {
+            gsap.from(header, {
+                scrollTrigger: {
+                    trigger: header,
+                    start: "top 85%",
+                },
+                y: 50,
+                opacity: 0,
+                duration: 1,
+                ease: "power3.out"
+            });
+        });
+
+        // --- Timeline Entry Unfold ---
+        gsap.utils.toArray(".timeline-entry").forEach((entry, i) => {
+            gsap.from(entry, {
+                scrollTrigger: {
+                    trigger: entry,
+                    start: "top 90%",
+                },
+                x: i % 2 === 0 ? -50 : 50,
+                opacity: 0,
+                duration: 1.2,
+                ease: "expo.out"
+            });
+        });
+
+        // --- Phase Comparison Table Reveal ---
+        gsap.from(".phase-comparison", {
             scrollTrigger: {
-                trigger: title,
-                start: "top 90%",
+                trigger: ".phase-comparison",
+                start: "top 85%",
             },
-            y: 100,
+            y: 50,
+            opacity: 0,
+            duration: 1.2,
+            ease: "power3.out"
+        });
+
+        // --- Hall of Fame Reveal ---
+        gsap.from(".hall-glass", {
+            scrollTrigger: {
+                trigger: ".hall-glass",
+                start: "top 80%",
+            },
+            scale: 0.95,
             opacity: 0,
             duration: 1.5,
             ease: "power4.out"
         });
-    });
 
-    // Timeline Cards - Apple Reveal (Slide from bottom + Zoom)
-    gsap.utils.toArray(".timeline-card").forEach((card, i) => {
-        gsap.from(card, {
+        // --- Background Parallax on Scroll ---
+        gsap.to(".layer-1", {
             scrollTrigger: {
-                trigger: card,
-                start: "top 95%",
-                toggleActions: "play none none reverse"
+                trigger: "body",
+                start: "top top",
+                end: "bottom bottom",
+                scrub: true
             },
-            y: 150,
-            opacity: 0,
-            scale: 0.95,
-            duration: 1.2,
-            delay: i * 0.1,
-            ease: "expo.out"
+            y: "20%",
+            ease: "none"
         });
-    });
-
-    // Feature Blocks Staggered Reveal
-    gsap.from(".feature-block", {
-        scrollTrigger: {
-            trigger: ".feature-showcase",
-            start: "top 80%"
-        },
-        y: 60,
-        opacity: 0,
-        scale: 0.9,
-        duration: 1,
-        stagger: 0.2,
-        ease: "back.out(1.7)"
-    });
-
-    // Parallax effect on Hero
-    window.addEventListener('scroll', () => {
-        const scrolled = window.pageYOffset;
-        const hero = document.getElementById('hero');
-        if (hero) {
-            hero.style.backgroundPositionY = (scrolled * 0.5) + 'px';
-        }
-    });
-}
-
-// Navbar Scroll Effect
-window.addEventListener('scroll', () => {
-    const nav = document.getElementById('navbar');
-    if (!nav) return;
-    if (window.scrollY > 100) {
-        nav.style.height = '60px';
-        nav.style.background = 'rgba(3, 3, 5, 0.9)';
-    } else {
-        nav.style.height = '80px';
-        nav.style.background = 'rgba(3, 3, 5, 0.7)';
     }
-});
 
-loadCloudConfig().catch(e => console.error(e)).finally(() => {
-    initAnimations();
-});
+    // 8. Live Minecraft Status
+    async function fetchPlayerCount() {
+        const ip = "play.aeracraft.net";
+        try {
+            const response = await fetch(`https://api.mcstatus.io/v2/status/java/${ip}`);
+            const data = await response.json();
+            const countEl = document.getElementById('player-count');
+            if (countEl && data.online) {
+                countEl.innerText = data.players.online;
+                document.getElementById('online-status').style.opacity = '1';
+            } else if (countEl) {
+                countEl.innerText = "0";
+            }
+        } catch (e) { console.error("MC Status Error:", e); }
+    }
+
+    // Initialize logic then animations
+    loadConfig().finally(() => {
+        animate();
+        fetchPlayerCount();
+        setInterval(fetchPlayerCount, 60000); // Update every minute
+    });
+};
+
+// Start when DOM is ready
+document.addEventListener('DOMContentLoaded', initAeraCraft);

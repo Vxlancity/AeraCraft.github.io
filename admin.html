@@ -3,70 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>aeraCraft Admin | Cloud Control</title>
+    <title>AeraCraft Admin | Cloud Control</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Cinzel:wght@700&display=swap" rel="stylesheet">
     <style>
-        body { background: #050507; padding-top: 40px; }
-        .admin-panel { max-width: 900px; margin: 0 auto; background: rgba(20, 20, 25, 0.95); padding: 40px; border-radius: 20px; border: 1px solid rgba(168, 85, 247, 0.2); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 20px; }
-        .admin-section { margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.02); border-radius: 12px; }
-        label { display: block; margin-bottom: 10px; font-weight: 600; color: #a855f7; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
-        input, select, textarea { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; margin-bottom: 15px; }
-        .phase-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .phase-btn { padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; cursor: pointer; text-align: center; transition: 0.3s; }
-        .phase-btn.active { background: rgba(168, 85, 247, 0.2); border-color: #a855f7; color: #fff; font-weight: 800; }
-        .btn-save { background: #a855f7; color: #fff; border: none; padding: 15px 30px; border-radius: 8px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.3s; }
-        .btn-save:hover { background: #9333ea; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(168, 85, 247, 0.3); }
+        :root {
+            --bg-dark: #050505;
+            --accent-purple: #a855f7;
+            --glass-blur: blur(20px) saturate(180%);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        body { 
+            background: var(--bg-dark); 
+            color: #fff; 
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Login Overlay */
+        #login-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .login-box {
+            background: rgba(20, 20, 25, 0.95);
+            padding: 40px;
+            border-radius: 24px;
+            border: var(--glass-border);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            backdrop-filter: var(--glass-blur);
+        }
+
+        .login-box h2 { font-family: 'Cinzel', serif; margin-bottom: 20px; color: var(--accent-purple); }
+
+        /* Admin Panel */
+        .admin-wrapper {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 20px;
+            display: none;
+        }
+
+        .admin-panel { 
+            background: rgba(20, 20, 25, 0.9); 
+            padding: 40px; 
+            border-radius: 30px; 
+            border: var(--glass-border); 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            backdrop-filter: var(--glass-blur);
+        }
+
+        .admin-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 40px; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+            padding-bottom: 20px; 
+        }
+
+        .admin-header h1 { font-family: 'Cinzel', serif; font-size: 1.5rem; margin: 0; }
+        .admin-header span { color: var(--accent-purple); }
+
+        .admin-section { 
+            margin-bottom: 30px; 
+            padding: 25px; 
+            background: rgba(255,255,255,0.03); 
+            border-radius: 20px; 
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        label { 
+            display: block; 
+            margin-bottom: 12px; 
+            font-weight: 700; 
+            color: var(--accent-purple); 
+            text-transform: uppercase; 
+            font-size: 0.75rem; 
+            letter-spacing: 2px; 
+        }
+
+        input, select, textarea { 
+            width: 100%; 
+            padding: 14px; 
+            background: rgba(0,0,0,0.4); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 12px; 
+            color: #fff; 
+            margin-bottom: 20px; 
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        input:focus { border-color: var(--accent-purple); outline: none; }
+
+        .phase-selector { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 15px; 
+            margin-bottom: 20px; 
+        }
+
+        .phase-btn { 
+            padding: 20px; 
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 15px; 
+            cursor: pointer; 
+            text-align: center; 
+            transition: all 0.3s; 
+        }
+
+        .phase-btn small { display: block; opacity: 0.5; margin-top: 5px; }
+        .phase-btn.active { 
+            background: rgba(168, 85, 247, 0.2); 
+            border-color: var(--accent-purple); 
+            color: #fff; 
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+        }
+
+        .btn-action { 
+            background: var(--accent-purple); 
+            color: #fff; 
+            border: none; 
+            padding: 18px 30px; 
+            border-radius: 15px; 
+            font-weight: 800; 
+            cursor: pointer; 
+            width: 100%; 
+            transition: 0.3s; 
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-action:hover { 
+            background: #9333ea; 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 20px rgba(168, 85, 247, 0.4); 
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+        .error-msg { color: #ef4444; font-size: 0.85rem; margin-top: 15px; display: none; }
     </style>
 </head>
 <body>
-    <div class="admin-panel">
-        <div class="admin-header">
-            <h1 style="font-size: 1.5rem;">aera<span>Craft</span> Cloud Admin</h1>
-            <a href="index.html" style="color: #666; text-decoration: none; font-size: 0.9rem;">← Zur Website</a>
+    <!-- Login Overlay -->
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2>Admin Login</h2>
+            <input type="email" id="login-email" placeholder="E-Mail">
+            <input type="password" id="login-pass" placeholder="Passwort">
+            <button class="btn-action" id="login-btn" onclick="handleLogin()">Einloggen</button>
+            <p id="login-error" class="error-msg"></p>
         </div>
-
-        <div class="admin-section">
-            <label>Aktuelle Season Phase</label>
-            <div class="phase-selector" id="phase-selector">
-                <div class="phase-btn" data-phase="1">Woche 1<br><small>Allianz</small></div>
-                <div class="phase-btn" data-phase="2">Woche 2<br><small>Expansion</small></div>
-                <div class="phase-btn" data-phase="3">Woche 3-4<br><small>Vernichtung</small></div>
-            </div>
-            <input type="hidden" id="current-phase" value="1">
-        </div>
-
-        <div class="admin-section">
-            <label>Season Thema / Hook</label>
-            <input type="text" id="season-theme" placeholder="z.B. Endless Desert, Frozen Wasteland...">
-            
-            <label>Countdown Ziel (Datum)</label>
-            <input type="datetime-local" id="countdown-date">
-        </div>
-
-        <div class="admin-section">
-            <label>Hall of Fame (Siegerteam)</label>
-            <input type="text" id="hall-of-fame" placeholder="Name des Gewinner-Teams">
-        </div>
-
-        <button class="btn-save" onclick="saveConfig()">Season-Daten in Cloud speichern</button>
     </div>
 
-    <script type="module">
-        // Supabase-Zugangsdaten werden aus dem Haupt-Projekt übernommen
-        // (Ich nutze den globalen Supabase Client, den wir bereits konfiguriert haben)
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
-        
-        // Wir holen uns die Credentials aus dem localStorage (da sie im Hauptprojekt dort liegen)
-        const supabaseUrl = localStorage.getItem('supabase-url');
-        const supabaseKey = localStorage.getItem('supabase-key');
-        
-        if (!supabaseUrl || !supabaseKey) {
-            alert("Supabase Credentials fehlen im LocalStorage! Bitte einmal im Haupt-Admin Dashboard anmelden.");
+    <!-- Admin Panel -->
+    <div class="admin-wrapper" id="admin-wrapper">
+        <div class="admin-panel">
+            <div class="admin-header">
+                <h1>Aera<span>Craft</span> Cloud Admin</h1>
+                <div style="display: flex; gap: 15px;">
+                    <button class="btn-secondary" onclick="handleLogout()">Logout</button>
+                    <a href="index.html" class="btn-secondary">Website ←</a>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <label>Aktuelle Season Phase</label>
+                <div class="phase-selector" id="phase-selector">
+                    <div class="phase-btn" data-phase="1">Woche 1<small>Allianz</small></div>
+                    <div class="phase-btn" data-phase="2">Woche 2<small>Expansion</small></div>
+                    <div class="phase-btn" data-phase="3">Woche 3-4<small>Vernichtung</small></div>
+                </div>
+                <input type="hidden" id="current-phase" value="1">
+            </div>
+
+            <div class="admin-section">
+                <label>Discord Einladungs-Link</label>
+                <input type="text" id="discord-url" placeholder="https://discord.gg/...">
+
+                <label>Season Thema / Hook</label>
+                <input type="text" id="season-theme" placeholder="z.B. Endless Desert, Frozen Wasteland...">
+                
+                <label>Countdown Ziel (Datum)</label>
+                <input type="datetime-local" id="countdown-date">
+            </div>
+
+            <div class="admin-section">
+                <label>Hall of Fame (Siegerteam)</label>
+                <input type="text" id="hall-of-fame" placeholder="Name des Gewinner-Teams">
+            </div>
+
+            <div class="admin-section">
+                <label>Team-Verwaltung</label>
+                <div id="team-manager-list" style="margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Members will appear here -->
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px;">
+                    <input type="text" id="new-member-mc" placeholder="MC Name" style="margin: 0;">
+                    <input type="text" id="new-member-role" placeholder="Rolle" style="margin: 0;">
+                    <input type="text" id="new-member-discord" placeholder="Discord ID" style="margin: 0;">
+                    <button class="btn-action" style="padding: 10px 20px; width: auto;" onclick="addTeamMember()">+</button>
+                </div>
+            </div>
+
+            <button class="btn-action" onclick="saveConfig()">Daten synchronisieren</button>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://iutdotykpgrdhgvqtnjx.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1dGRvdHlrcGdyZGhndnF0bmp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MDM1NzAsImV4cCI6MjA5Mjk3OTU3MH0.q2zkK2ob_ohmG_o7o4q2r2_DbgLgWivTZ6Z-UVXoEJg';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let teamList = [];
+
+        // Session Check
+        async function checkSession() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) showDashboard();
+        }
+        checkSession();
+
+        // Login Logic
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-pass').value;
+            const btn = document.getElementById('login-btn');
+            const err = document.getElementById('login-error');
+
+            btn.disabled = true;
+            btn.textContent = 'Verbinde...';
+            err.style.display = 'none';
+
+            try {
+                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                showDashboard();
+            } catch (error) {
+                err.textContent = error.message;
+                err.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Einloggen';
+            }
         }
 
-        const supabase = createClient(supabaseUrl, supabaseKey);
+        async function handleLogout() {
+            await supabaseClient.auth.signOut();
+            location.reload();
+        }
+
+        function showDashboard() {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('admin-wrapper').style.display = 'block';
+            loadConfig();
+        }
 
         // Phase Buttons Logic
         const phaseBtns = document.querySelectorAll('.phase-btn');
@@ -78,36 +294,85 @@
             });
         });
 
+        function renderTeamManager() {
+            const container = document.getElementById('team-manager-list');
+            container.innerHTML = teamList.map((m, i) => `
+                <div style="display: flex; gap: 10px; align-items: center; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px;">
+                    <img src="https://minotar.net/avatar/${m.mc_name}/24" style="border-radius: 4px;">
+                    <span style="flex: 1;"><b>${m.mc_name}</b> (${m.role})</span>
+                    <button onclick="removeTeamMember(${i})" style="background: none; border: none; color: #ff4444; cursor: pointer;">✕</button>
+                </div>
+            `).join('');
+        }
+
+        window.addTeamMember = function() {
+            const mc = document.getElementById('new-member-mc').value;
+            const role = document.getElementById('new-member-role').value;
+            const discord = document.getElementById('new-member-discord').value;
+            if(!mc || !role) return;
+            teamList.push({ mc_name: mc, role, discord_id: discord });
+            renderTeamManager();
+            document.getElementById('new-member-mc').value = '';
+            document.getElementById('new-member-role').value = '';
+            document.getElementById('new-member-discord').value = '';
+        }
+
+        window.removeTeamMember = function(i) {
+            teamList.splice(i, 1);
+            renderTeamManager();
+        }
+
         async function loadConfig() {
-            const { data, error } = await supabase.from('site_config').select('*');
+            const { data, error } = await supabaseClient.from('site_config').select('*');
             if (data) {
-                const config = {};
-                data.forEach(item => config[item.key] = item.value);
+                const config = Object.fromEntries(data.map(c => [c.key, c.value]));
+
+                const setVal = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = val || '';
+                };
 
                 if (config.aeracraft_current_phase) {
                     const activeBtn = document.querySelector(`.phase-btn[data-phase="${config.aeracraft_current_phase}"]`);
-                    if (activeBtn) activeBtn.click();
+                    if (activeBtn) {
+                        phaseBtns.forEach(b => b.classList.remove('active'));
+                        activeBtn.classList.add('active');
+                        const cp = document.getElementById('current-phase');
+                        if (cp) cp.value = config.aeracraft_current_phase;
+                    }
                 }
-                if (config.aeracraft_season_theme) document.getElementById('season-theme').value = config.aeracraft_season_theme;
-                if (config.aeracraft_countdown) document.getElementById('countdown-date').value = config.aeracraft_countdown;
-                if (config.aeracraft_hall_of_fame) document.getElementById('hall-of-fame').value = config.aeracraft_hall_of_fame;
+                
+                setVal('discord-url', config.aeracraft_discord_url);
+                setVal('season-theme', config.aeracraft_season_theme);
+                setVal('countdown-date', config.aeracraft_countdown);
+                setVal('hall-of-fame', config.aeracraft_hall_of_fame);
+                
+                if (config.aeracraft_team_list) {
+                    teamList = JSON.parse(config.aeracraft_team_list);
+                    renderTeamManager();
+                }
             }
         }
 
         window.saveConfig = async function() {
+            const getVal = (id) => {
+                const el = document.getElementById(id);
+                return el ? el.value : '';
+            };
+
             const configs = [
-                { key: 'aeracraft_current_phase', value: document.getElementById('current-phase').value },
-                { key: 'aeracraft_season_theme', value: document.getElementById('season-theme').value },
-                { key: 'aeracraft_countdown', value: document.getElementById('countdown-date').value },
-                { key: 'aeracraft_hall_of_fame', value: document.getElementById('hall-of-fame').value }
+                { key: 'aeracraft_current_phase', value: getVal('current-phase') },
+                { key: 'aeracraft_discord_url', value: getVal('discord-url') },
+                { key: 'aeracraft_season_theme', value: getVal('season-theme') },
+                { key: 'aeracraft_countdown', value: getVal('countdown-date') },
+                { key: 'aeracraft_hall_of_fame', value: getVal('hall-of-fame') },
+                { key: 'aeracraft_team_list', value: JSON.stringify(teamList) }
             ];
 
-            const { error } = await supabase.from('site_config').upsert(configs);
+            const { error } = await supabaseClient.from('site_config').upsert(configs);
             if (error) alert("Fehler beim Speichern: " + error.message);
-            else alert("aeraCraft Cloud-Daten erfolgreich aktualisiert!");
+            else alert("AeraCraft Cloud-Daten erfolgreich aktualisiert!");
         }
-
-        loadConfig();
     </script>
 </body>
 </html>

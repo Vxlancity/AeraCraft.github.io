@@ -1,196 +1,268 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>aeraCraft | Era of Conquest</title>
+    <title>AeraCraft | Era of Conquest</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
-    <div class="bg-vignette"></div>
+    <!-- Immersive Background Layers -->
+    <div class="bg-wrapper">
+        <div class="bg-layer layer-1"></div>
+        <div class="bg-layer layer-2"></div>
+        <div class="bg-vignette"></div>
+    </div>
 
     <nav id="navbar">
-        <div class="nav-content">
-            <div class="logo">aera<span>Craft</span></div>
+        <div class="nav-content container">
+            <div class="logo">Aera<span>Craft</span></div>
             <div class="nav-links">
-                <a href="#about">Konzept</a>
-                <a href="#season">Season-Explorer</a>
-                <a href="#hall">Hall of Fame</a>
-                <a href="#join" class="btn-join">Server beitreten</a>
+                <a href="#about" class="nav-item">Konzept</a>
+                <a href="#season" class="nav-item">Explorer</a>
+                <a href="team.html" class="nav-item">Team</a>
+                <a href="#hall" class="nav-item">Hall of Fame</a>
+                <a href="#join" class="btn-join">Beitreten</a>
             </div>
         </div>
     </nav>
 
     <header id="hero">
-        <div class="hero-content">
-            <h2 class="hero-subtitle">ERA OF CONQUEST</h2>
-            <h1 class="hero-title">ERST ÜBERLEBEN,<br>DANN HERRSCHT <span class="accent">KRIEG</span>.</h1>
-            
-            <!-- Dynamic Countdown -->
-            <div class="countdown-container" id="countdown">
-                <div class="count-item">
-                    <span class="count-num" id="days">00</span>
-                    <span class="count-label">Tage</span>
+        <div class="hero-container container">
+            <div class="hero-content">
+                <div class="badge-new">NEW SEASON LIVE</div>
+                <div id="online-status" class="online-badge">
+                    <span class="pulse"></span>
+                    <span id="player-count">Laden...</span> Spieler online
                 </div>
-                <div class="count-item">
-                    <span class="count-num" id="hours">00</span>
-                    <span class="count-label">Std</span>
-                </div>
-                <div class="count-item">
-                    <span class="count-num" id="mins">00</span>
-                    <span class="count-label">Min</span>
-                </div>
-                <div class="count-item">
-                    <span class="count-num" id="secs">00</span>
-                    <span class="count-label">Sek</span>
-                </div>
-            </div>
+                <h2 class="hero-subtitle">ERA OF CONQUEST</h2>
+                <h1 class="hero-title">ERST <span class="text-gradient">ÜBERLEBEN</span>,<br>DANN HERRSCHT <span class="accent-glow">KRIEG</span>.</h1>
+                
+                <p class="hero-desc">Tauche ein in eine Welt, in der Technologie Macht bedeutet. Forme Allianzen, errichte Festungen und dominiere das Schlachtfeld.</p>
 
-            <p class="hero-desc">Aktuelles Season-Thema: <span id="current-theme" class="accent">Wird geladen...</span></p>
-            
-            <div class="hero-btns">
-                <a href="#season" class="btn-massive">Season-Plan entdecken</a>
-                <div class="server-ip" onclick="copyIP()">
-                    <span id="ip-text">play.aeracraft.net</span>
-                    <span class="copy-icon">📋</span>
+                <!-- Dynamic Countdown -->
+                <div class="countdown-glass" id="countdown">
+                    <div class="count-item">
+                        <span class="count-num" id="days">00</span>
+                        <span class="count-label">Tage</span>
+                    </div>
+                    <div class="count-item">
+                        <span class="count-num" id="hours">00</span>
+                        <span class="count-label">Std</span>
+                    </div>
+                    <div class="count-item">
+                        <span class="count-num" id="mins">00</span>
+                        <span class="count-label">Min</span>
+                    </div>
+                    <div class="count-item">
+                        <span class="count-num" id="secs">00</span>
+                        <span class="count-label">Sek</span>
+                    </div>
+                </div>
+
+                <div class="hero-status">
+                    Aktuelles Thema: <span id="current-theme" class="status-accent">Wird geladen...</span>
+                </div>
+
+                <div class="hero-btns">
+                    <a href="#season" class="btn-primary">Season entdecken</a>
+                    <div class="server-pill" onclick="copyIP()">
+                        <span class="pill-label">SERVER IP</span>
+                        <span id="ip-text" class="pill-value">play.aeracraft.net</span>
+                        <span class="copy-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </span>
+                    </div>
                 </div>
             </div>
+        </div>
+        <div class="scroll-indicator">
+            <div class="mouse"></div>
+            <span>Scrollen</span>
         </div>
     </header>
 
     <section id="season" class="section">
         <div class="container">
             <div class="section-header">
+                <span class="section-badge">ROADMAP</span>
                 <h2 class="section-title">Der Season-Explorer</h2>
-                <p>Eine 4-wöchige Evolution. Von der Steinzeit bis zum totalen Krieg. Erfahre, was dich in jeder Phase erwartet.</p>
+                <p class="section-desc">Eine 4-wöchige Evolution. Von der Steinzeit bis zum totalen Krieg. Erfahre, was dich in jeder Phase erwartet.</p>
             </div>
 
-            <div class="timeline-massive">
+            <div class="timeline-v2">
                 <!-- Woche 1 -->
-                <div class="timeline-card" id="phase-card-1">
-                    <div class="card-left">
-                        <h2>01</h2>
-                        <h3>Woche 1</h3>
-                        <span class="status-badge">Allianz-Phase</span>
-                    </div>
-                    <div class="card-right">
-                        <h3>Ära der Allianz</h3>
+                <div class="timeline-entry" id="phase-card-1">
+                    <div class="entry-number">01</div>
+                    <div class="entry-content glass">
+                        <div class="entry-header">
+                            <span class="phase-tag">Allianz-Phase</span>
+                            <h3>Ära der Allianz</h3>
+                        </div>
                         <p>Niemand kann PvP aktivieren. Die Community muss gemeinsam Ressourcen sammeln und Technologien freischalten.</p>
-                        <div class="phase-grid">
-                            <div class="phase-info-box">
-                                <h4>PvP Status</h4>
-                                <span>Deaktiviert</span>
+                        <div class="phase-details">
+                            <div class="detail-item">
+                                <span class="label">PvP Status</span>
+                                <span class="value">Deaktiviert</span>
                             </div>
-                            <div class="phase-info-box">
-                                <h4>Hauptziel</h4>
-                                <span>Technologie-Progress</span>
-                            </div>
-                            <div class="phase-info-box">
-                                <h4>War-Gates</h4>
-                                <span>Versiegelt</span>
+                            <div class="detail-item">
+                                <span class="label">Ziel</span>
+                                <span class="value">Tech-Progress</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Woche 2 -->
-                <div class="timeline-card" id="phase-card-2">
-                    <div class="card-left">
-                        <h2>02</h2>
-                        <h3>Woche 2</h3>
-                        <span class="status-badge">Expansion</span>
-                    </div>
-                    <div class="card-right">
-                        <h3>Ära der Expansion</h3>
-                        <p>Erste Scharmützel in der Wildnis sind erlaubt. Teams erobern strategische Außenposten, die passiv Ressourcen generieren.</p>
-                        <div class="phase-grid">
-                            <div class="phase-info-box">
-                                <h4>PvP Status</h4>
-                                <span>Eingeschränkt (Wildnis)</span>
+                <div class="timeline-entry" id="phase-card-2">
+                    <div class="entry-number">02</div>
+                    <div class="entry-content glass">
+                        <div class="entry-header">
+                            <span class="phase-tag">Expansion</span>
+                            <h3>Ära der Expansion</h3>
+                        </div>
+                        <p>Erste Scharmützel in der Wildnis sind erlaubt. Teams erobern strategische Außenposten für passives Einkommen.</p>
+                        <div class="phase-details">
+                            <div class="detail-item">
+                                <span class="label">PvP Status</span>
+                                <span class="value">Eingeschränkt</span>
                             </div>
-                            <div class="phase-info-box">
-                                <h4>Hauptziel</h4>
-                                <span>Außenposten halten</span>
-                            </div>
-                            <div class="phase-info-box">
-                                <h4>War-Gates</h4>
-                                <span>Vorbereitung</span>
+                            <div class="detail-item">
+                                <span class="label">Ziel</span>
+                                <span class="value">Außenposten</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Woche 3-4 -->
-                <div class="timeline-card" id="phase-card-3">
-                    <div class="card-left">
-                        <h2>03</h2>
-                        <h3>Woche 3-4</h3>
-                        <span class="status-badge">Total War</span>
-                    </div>
-                    <div class="card-right">
-                        <h3>Ära der Vernichtung</h3>
-                        <p>Die War-Gates öffnen sich. Basen sind raidbar. Das Team, das das finale Endgame-Objekt hält, gewinnt die Season.</p>
-                        <div class="phase-grid">
-                            <div class="phase-info-box">
-                                <h4>PvP Status</h4>
-                                <span>Totaler Krieg</span>
+                <div class="timeline-entry" id="phase-card-3">
+                    <div class="entry-number">03</div>
+                    <div class="entry-content glass highlight">
+                        <div class="entry-header">
+                            <span class="phase-tag danger">Total War</span>
+                            <h3>Ära der Vernichtung</h3>
+                        </div>
+                        <p>Die War-Gates öffnen sich. Basen sind raidbar. Das Team, das das finale Monument hält, gewinnt die Season.</p>
+                        <div class="phase-details">
+                            <div class="detail-item">
+                                <span class="label">PvP Status</span>
+                                <span class="value">TOTALER KRIEG</span>
                             </div>
-                            <div class="phase-info-box">
-                                <h4>Endgame</h4>
-                                <span>Zentrales Monument</span>
-                            </div>
-                            <div class="phase-info-box">
-                                <h4>War-Gates</h4>
-                                <span>OFFEN</span>
+                            <div class="detail-item">
+                                <span class="label">Endgame</span>
+                                <span class="value">Zentralmonument</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- New Comparison Table Section -->
+            <div class="phase-comparison glass">
+                <h3>System-Übersicht</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Phase 1</th>
+                                <th>Phase 2</th>
+                                <th>Phase 3</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>PvP</td>
+                                <td class="muted">Nein</td>
+                                <td class="accent">Wildnis</td>
+                                <td class="danger">Überall</td>
+                            </tr>
+                            <tr>
+                                <td>Griefing</td>
+                                <td class="muted">Verboten</td>
+                                <td class="muted">Verboten</td>
+                                <td class="accent">Erlaubt</td>
+                            </tr>
+                            <tr>
+                                <td>Basis-Raids</td>
+                                <td class="muted">Nein</td>
+                                <td class="muted">Vorbereitung</td>
+                                <td class="danger">JA</td>
+                            </tr>
+                            <tr>
+                                <td>Tech-Level</td>
+                                <td>Mittelalter</td>
+                                <td>Industrial</td>
+                                <td class="accent">Modern/Sci-Fi</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </section>
 
-    <section id="hall" class="section alt-bg">
+    <section id="hall" class="section">
         <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Hall of Fame</h2>
-                <p>Die Legenden der vergangenen Eroberungen. Werdet ihr die nächsten sein?</p>
-            </div>
-            
-            <div class="feature-showcase">
-                <div class="feature-block">
-                    <h3 id="current-winner" class="accent">---</h3>
-                    <p>Gewinner der letzten Season. Sie tragen die Krone und genießen optische Vorteile am Spawn.</p>
+            <div class="hall-glass">
+                <div class="section-header align-center">
+                    <span class="section-badge">LEGENDEN</span>
+                    <h2 class="section-title">Hall of Fame</h2>
                 </div>
-                <div class="feature-block">
-                    <h3>Die Ewige Liste</h3>
-                    <p>Jeder Sieg wird in der Historie von aeraCraft verewigt. Besuche den Spawn, um die Statuen zu sehen.</p>
+
+                <div class="winner-display">
+                    <div class="winner-trophy">🏆</div>
+                    <h3 id="current-winner" class="winner-name">---</h3>
+                    <p class="winner-desc">Herrscher der letzten Season. Sie tragen die Krone und genießen optische Vorteile am Spawn.</p>
                 </div>
-                <div class="feature-block">
-                    <h3>Dein Vorteil</h3>
-                    <p>Gewinner-Teams starten mit speziellen Umhängen und goldenen Namen in die nächste Ära.</p>
+
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">📜</div>
+                        <h4>Die Ewige Liste</h4>
+                        <p>Jeder Sieg wird in der Historie verewigt.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🛡️</div>
+                        <h4>Dein Vorteil</h4>
+                        <p>Gewinner starten mit speziellen Umhängen.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
     <footer id="join">
-        <div class="footer-logo">aera<span>Craft</span></div>
-        <h2>Bist du bereit für deine Ära?</h2>
-        <div class="server-ip large" onclick="copyIP()" style="max-width: 600px; margin: 40px auto;">
-            <span id="ip-text-large">play.aeracraft.net</span>
-            <span class="copy-hint">Klicken zum Kopieren</span>
+        <div class="container">
+            <div class="footer-cta glass">
+                <div class="logo-small">Aera<span>Craft</span></div>
+                <h2>Bereit für die Eroberung?</h2>
+                <div class="server-ip-large" onclick="copyIP()">
+                    <span id="ip-text-large">play.aeracraft.net</span>
+                    <div class="copy-hint">Klicken zum Kopieren</div>
+                </div>
+                <div class="footer-links">
+                    <a href="#" id="discord-link">Discord</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 AeraCraft. Ein <a href="admin.html" class="admin-link">Vxlancity DEV</a> Projekt.</p>
+            </div>
         </div>
-        <p style="opacity: 0.3; font-size: 0.8rem; margin-top: 60px;">&copy; 2026 aeraCraft. Ein <a href="admin.html" style="color: inherit; text-decoration: none; cursor: default;">Vxlancity DEV</a> Projekt.</p>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="main.js"></script>
 </body>
+
 </html>

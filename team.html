@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team | AeraCraft</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    <!-- GSAP & Supabase -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .team-container {
+            padding-top: 18vh;
+            padding-bottom: 100px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+            margin-top: 80px;
+            align-items: stretch; /* Alle Karten in der Reihe gleich hoch */
+        }
+
+        .team-card {
+            padding: 50px 30px;
+            border-radius: 30px;
+            text-align: center;
+            transition: all 0.4s ease;
+            border: 2px solid #a855f7;
+            background: #1a1a24 !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            position: relative;
+            z-index: 10;
+            opacity: 1 !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Verteilt Inhalt gleichmäßig */
+            height: 100%; /* Füllt den Grid-Platz aus */
+        }
+
+        /* Vignette auf dieser Seite deaktivieren */
+        .bg-vignette {
+            display: none !important;
+        }
+
+        .team-card:hover {
+            transform: translateY(-10px);
+            border-color: #c084fc;
+            box-shadow: 0 20px 50px rgba(168, 85, 247, 0.4);
+        }
+
+        .skin-wrapper {
+            width: 120px;
+            height: 160px;
+            margin: 0 auto 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .team-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+            color: #fff;
+            text-transform: uppercase;
+            word-wrap: break-word;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: #a855f7;
+            color: #fff;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin: 10px auto 20px;
+            width: fit-content;
+        }
+
+        .status-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .status-online { background: #2ecc71; box-shadow: 0 0 8px #2ecc71; }
+        .status-idle { background: #f1c40f; }
+        .status-dnd { background: #e74c3c; }
+        .status-offline { background: #4b5563; }
+
+        .activity-section {
+            background: rgba(0,0,0,0.35);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .activity-section .activity-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 4px;
+        }
+
+        .activity-section .activity-value {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .activity-section .activity-detail {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.75rem;
+        }
+
+        .custom-status {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #c084fc;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+
+        .skin-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+
+        .team-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .team-role {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--accent-purple);
+            font-weight: 800;
+            margin-bottom: 25px;
+            display: block;
+        }
+
+        .discord-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(88, 101, 242, 0.1);
+            color: #5865f2;
+            padding: 12px 24px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+            transition: 0.3s;
+            border: 1px solid rgba(88, 101, 242, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        .discord-btn:hover {
+            background: #5865f2;
+            color: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(88, 101, 242, 0.4);
+        }
+
+        .loading-text {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            padding: 100px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Parallax Background Layers -->
+    <div class="bg-layers">
+        <div class="layer layer-1"></div>
+        <div class="layer layer-2"></div>
+    </div>
+
+    <nav id="navbar">
+        <div class="nav-content container">
+            <div class="logo">Aera<span>Craft</span></div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-item">Home</a>
+                <a href="index.html#season" class="nav-item">Explorer</a>
+                <a href="team.html" class="nav-item active">Team</a>
+                <a href="index.html#join" class="btn-join">Beitreten</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container team-container">
+        <header class="section-header align-center">
+            <span class="section-badge">ADMINISTRATION</span>
+            <h1 class="hero-title text-gradient">Das Hohe Konzil</h1>
+            <p class="section-desc">Die Architekten hinter AeraCraft. Wir sorgen für Balance und Ordnung in der Ära der Eroberung.</p>
+        </header>
+
+        <div id="team-list" class="team-grid">
+            <div class="loading-text">Beschwöre Teammitglieder...</div>
+        </div>
+    </div>
+
+    <footer style="margin-top: 100px; border-top: 1px solid rgba(255,255,255,0.05); padding: 60px 0;">
+        <div class="container" style="text-align: center; opacity: 0.5;">
+            <p>&copy; 2026 AeraCraft. Ein Vxlancity DEV Projekt.</p>
+        </div>
+    </footer>
+
+    <script>
+        const SUPABASE_URL = 'https://iutdotykpgrdhgvqtnjx.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1dGRvdHlrcGdyZGhndnF0bmp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MDM1NzAsImV4cCI6MjA5Mjk3OTU3MH0.q2zkK2ob_ohmG_o7o4q2r2_DbgLgWivTZ6Z-UVXoEJg';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Background Parallax (matching main.js)
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth - 0.5) * 30;
+            const y = (e.clientY / window.innerHeight - 0.5) * 30;
+            gsap.to('.layer-1', { x: -x, y: -y, duration: 2, ease: "power2.out" });
+            gsap.to('.layer-2', { x: x * 0.5, y: y * 0.5, duration: 2, ease: "power2.out" });
+        });
+
+        async function loadTeam() {
+            try {
+                const { data, error } = await supabaseClient.from('site_config').select('*').eq('key', 'aeracraft_team_list').single();
+                const container = document.getElementById('team-list');
+                
+                if (data && data.value) {
+                    const team = JSON.parse(data.value);
+                    container.innerHTML = '';
+                    
+                    team.forEach((member, i) => {
+                        const statusClass = `status-${member.status || 'offline'}`;
+                        const statusLabel = { online: 'Online', idle: 'Abwesend', dnd: 'Bitte nicht stören', offline: 'Offline' }[member.status] || 'Offline';
+                        
+                        let displayName = member.mc_name;
+                        if (displayName.includes('|')) displayName = displayName.split('|')[1].trim();
+
+                        // Activity-Sektionen dynamisch bauen
+                        let activityHTML = '';
+                        
+                        if (member.custom_status) {
+                            activityHTML += `<div class="custom-status">${member.custom_emoji || ''} ${member.custom_status}</div>`;
+                        }
+                        
+                        if (member.playing) {
+                            activityHTML += `
+                                <div class="activity-section">
+                                    <div class="activity-label">🎮 Spielt</div>
+                                    <div class="activity-value">${member.playing}</div>
+                                    ${member.playing_details ? `<div class="activity-detail">${member.playing_details}</div>` : ''}
+                                </div>`;
+                        }
+                        
+                        if (member.spotify_song) {
+                            activityHTML += `
+                                <div class="activity-section">
+                                    <div class="activity-label">🎵 Hört Spotify</div>
+                                    <div class="activity-value">${member.spotify_song}</div>
+                                    ${member.spotify_artist ? `<div class="activity-detail">von ${member.spotify_artist}</div>` : ''}
+                                </div>`;
+                        }
+
+                        const card = document.createElement('div');
+                        card.className = 'team-card';
+                        card.innerHTML = `
+                            <div class="skin-wrapper">
+                                <img src="https://minotar.net/armor/body/${member.mc_name}/120.png" alt="" onerror="this.src='https://minotar.net/armor/body/Steve/120.png'">
+                            </div>
+                            <h3 class="team-name">${displayName}</h3>
+                            <div class="role-badge">${member.role}</div>
+                            
+                            <div class="status-line">
+                                <span class="status-dot ${statusClass}"></span>
+                                <span>${statusLabel}</span>
+                            </div>
+
+                            ${activityHTML}
+
+                            <a href="https://discord.com/users/${member.discord_id}" target="_blank" class="discord-btn">
+                                <span>Discord Profil</span>
+                            </a>
+                        `;
+                        container.appendChild(card);
+                    });
+                } else {
+                    container.innerHTML = '<p class="loading-text">Noch keine Teammitglieder ernannt.</p>';
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        loadTeam();
+    </script>
+</body>
+</html>
